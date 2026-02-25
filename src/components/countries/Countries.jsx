@@ -1,11 +1,19 @@
 import React, { use } from 'react';
+import Country from '../country/Country';
 
 const Countries = ({ countriesPromise }) => {
-    const countries = use(countriesPromise);
-    console.log(countries)
+    const countriesData = use(countriesPromise);
+    const countries = countriesData.countries
+    // console.log(countries[0].ccn3.ccn3)
+
     return (
         <div>
-            <p>Hello</p>
+            <p>Total countries: {countries.length}</p>
+            {
+                countries.map(country => <Country
+                key={country.cca3.cca3}
+                country = {country}></Country>)
+            }
         </div>
     );
 };
