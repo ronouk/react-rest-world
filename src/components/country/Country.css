@@ -1,0 +1,21 @@
+.country{
+    border: 2px solid coral;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.country img{
+    border-radius: 10px;
+    height: 40%;
+    object-fit: cover;
+
+}
+
+.country-visited{
+    background-color: rgb(199, 233, 222);
+}
