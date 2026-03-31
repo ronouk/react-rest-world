@@ -1,0 +1,21 @@
+.navlink{
+    padding: 8px 12px;
+    margin: 10px;
+    border-radius: 6px;
+    border: 1px solid gray;
+    transition: all;
+    transition-duration: 150ms;
+}
+
+.navlink:hover{
+    background-color: #0b6d10;
+    color: white;
+}
+
+.navbar a.active{
+    color: #ff0000
+}
+
+.navbar a.active:hover{
+    color: white
+}

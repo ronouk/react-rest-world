@@ -1,0 +1,134 @@
+import { createBrowserRouter } from "react-router";
+import Root from "../pages/Root";
+import Home from "../pages/home/Home"
+import Countries from "../pages/countries/Countries";
+import Country from "../components/country/Country";
+import Wishlist from "../pages/wishlist/Wishlist";
+import CheckPage from "../pages/CheckPage";
+
+const urlRestCountries = "https://restcountries.com/v3.1/all?fields=name,capital,cca2,flags,languages,maps,region,population,area";
+
+const restCountriesLoader = async () => {
+    const response = await fetch(urlRestCountries)
+
+    if (!response.ok) {
+        throw new Error("Error in loading rescountries data")
+    }
+
+    return response.json()
+}
+
+export const combinedLoader = async ({ params }) => {
+
+    const { id } = params;
+
+    const urlRestCountry = await fetch(`https://restcountries.com/v3.1/alpha/${id}`);
+    const urlCCA3 = "https://gist.githubusercontent.com/bensquire/1ba2037079b69e38bb0d6aea4c4a0229/raw/8609a1a86683bbd6d0e4a7e9456eabf6e7b65b7f/countries.json";
+
+    // if (!resRestCountries.ok) throw new Error(`Country with cca2 ${id} not found`)
+    // const restCountryArray = await resRestCountries.json();
+    // const restCountryData = restCountryArray[0];
+
+    try {
+
+        // api 1: rest countries
+        const restCountryRes = await fetch(urlRestCountry);
+        if (!restCountryRes.ok) throw new Error("Rest countries data not loading")
+        const restCountryArray = await restCountryRes.json();
+        const restCountryData = restCountryArray[0];
+
+        // api 2: countries api
+
+        const slug = restCountryData?.name?.common?.toLowerCase().replaceAll(" ", "-");
+        const urlCountriesApi = `https://countries.altoal.com/api/v1/name/${slug}.json`;
+        console.log("Checking URL:", urlCountriesApi);
+
+        const [countriesApiRes, cca3Res] = await Promise.all([
+            fetch(urlCountriesApi),
+            fetch(urlCCA3)
+        ]);
+
+        const [countriesApiData, cca3Data] = await Promise.all([
+            countriesApiRes.ok ? await countriesApiRes.json().catch(() => null) : null,
+            cca3Res.ok ? await cca3Res.json().catch(() => []) : []
+        ])
+
+        return {
+            restApi: restCountryData, countriesApi: countriesApiData, cca3Data
+        }
+    }
+
+    catch (err) {
+        console.error("Loader error:", err);
+        throw err; // Let React Router's errorElement handle this
+    }
+
+}
+
+
+
+export const combinedLoader1 = async () => {
+
+    const urlCountriesApi = `https://countries.altoal.com/api/v1/metadata.json`;
+
+    try {
+        const [res1, res2] = await Promise.all([
+            fetch(urlRestCountries),
+            fetch(urlCountriesApi)
+        ])
+
+        if (!res1.ok || !res2.ok) throw new Error("Data not found");
+
+        const [api1Data, api2Data] = await Promise.all([
+            res1.json(),
+            res2.json()
+        ])
+
+        return { api1Data, api2Data }
+    }
+
+    catch (error) {
+        console.error("Loader Error", error);
+
+        return {
+            api1Data: null,
+            api2Data: null
+        }
+    }
+
+}
+
+
+export const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Root />,
+        hydrateFallbackElement: <span>Data Loading...</span>,
+        children: [
+            {
+                index: true,
+                Component: Home,
+                loader: restCountriesLoader,
+            },
+            {
+                path: "/allcountries",
+                Component: Countries,
+                loader: restCountriesLoader,
+            },
+            {
+                path: "/countrydetails/:id",
+                Component: Country,
+                loader: combinedLoader
+            },
+            {
+                path: '/wishlist',
+                Component: Wishlist
+            },
+            {
+                path: "/check-api-data",
+                Component: CheckPage,
+                loader: combinedLoader1
+            }
+        ]
+    },
+]);
