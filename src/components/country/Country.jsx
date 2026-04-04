@@ -54,7 +54,7 @@ const Country = () => {
     const religions = countriesApi?.data?.people_and_society?.religions?.value;
 
     //gdp data
-    const gdpYear = gdpWbData?.[1]?.map(data => parseInt(data?.date)) || [];
+    // const gdpYear = gdpWbData?.[1]?.map(data => parseInt(data?.date)) || [];
 
     // console.log(gdpYear, gdpValue);
 
@@ -164,7 +164,7 @@ const Country = () => {
                 <div className='overflow-x-hidden'>
                     <h1>Historic GDP Data</h1>
                     {
-                        (gdpYear) ?
+                        (chartData.length !== 0) ?
 
                             <ResponsiveContainer width="95%" height={400}>
 
@@ -194,7 +194,7 @@ const Country = () => {
 
                     <div className='text-center'>
                         {
-                            gdpYear ? <span>Source: <Link className='text-red-700' to={`https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=${id}`} target='_blank'>World Bank</Link></span> : null
+                            (chartData.length !== 0) ? <span>Source: <Link className='text-red-700' to={`https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=${id}`} target='_blank'>World Bank</Link></span> : null
                         }
                     </div>
                 </div>
