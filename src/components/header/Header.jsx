@@ -12,10 +12,10 @@ const links =
 
 const Header = () => {
     return (
-        <div className='navbar bg-white-100 shadow-sm flex mx-auto justify-center items-center font-semibold mb-12'>
+        <div className='navbar bg-white-100 shadow-sm flex mx-auto justify-center items-center font-semibold mb-12 sticky top-0 bg-white z-1'>
             <div className="w-11/12 md:w-10/12 flex">
                 <div className="navbar-start">
-                    <NavLink to="/"><span className="text-xl">World Atlas</span></NavLink>
+                    <NavLink to="/"><span className="text-xl hover:text-red-700 transition">World Atlas</span></NavLink>
                 </div>
                 <div className="navbar-end">
                     <div className='hidden md:flex'>

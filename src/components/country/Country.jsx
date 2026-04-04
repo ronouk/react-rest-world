@@ -1,65 +1,67 @@
 import React from 'react';
 import "./Country.css";
 import { Helmet } from 'react-helmet-async';
-import { Link, useLoaderData, useParams } from 'react-router';
+import { Link, NavLink, useLoaderData, useNavigate, useNavigation, useParams } from 'react-router';
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import Loader from '../../utilities/Loader';
 
 const Country = () => {
 
     const { restApi, countriesApi, cca3Data, gdpWbData } = useLoaderData();
 
+    const navigation = useNavigation();
+    const navigate = useNavigate();
+
     // grab the params
     const idParams = useParams();
     const id = idParams.id;
 
+    const isLoading = navigation.state === "loading";
+
+    if (isLoading) {
+        return <Loader></Loader>
+    }
+
     // restCountries API Data:
-    const flag = restApi.flags?.svg;
+    const flag = restApi?.flags?.svg;
     const flagMeaning = countriesApi?.data?.government?.flag?.value?.meaning?.string;
-    const name = restApi.name?.common;
-    const nameOfficial = restApi.name?.official;
-    const callingCodeRoot = (restApi.idd.root);
-    const callingCodeSuffixes = Object.values(restApi.idd?.suffixes).join(", ") || null;
+    const name = restApi?.name?.common;
+    const nameOfficial = restApi?.name?.official;
+    const callingCodeRoot = restApi?.idd?.root;
+    const callingCodeSuffixes = restApi?.idd?.suffixes ? Object.values(restApi.idd.suffixes).join(", ") : "No data found";
 
-    // const borderCountries = restApi.borders?.map((borderCode, index) => {
-    //     const match = cca3Data?.find(item => item.code === borderCode);
-    //     return match ? <li key={index} className='list-none'>{match.name}</li> : borderCode;
-    // });
-
-    const borderCountries = restApi.borders?.map((borderCode) => {
+    const borderCountries = restApi?.borders?.map((borderCode) => {
         const match = cca3Data?.find(item => item.code === borderCode);
-        return match ? match.name : borderCode;
+        return match ? match?.name : borderCode;
     });
 
-    const borderCountryList = borderCountries?.join(", ");
+    const borderCountryList = borderCountries ? borderCountries.join(", ") : "No data found";
 
-    const languages = Object.values(restApi.languages).join(", ")
-    const currencies = Object.values(restApi.currencies)[0];
+    const languages = restApi?.languages ? Object.values(restApi.languages).join(", ") : "No data found";
+    const currencies = restApi?.currencies ? Object.values(restApi.currencies)[0] : "No data found";
 
-    const { capital, region, subregion, population, timezones, area, maps, tld } = restApi;
+    const { capital = "No data found", region = "No data found", subregion = "No data found", population = "No data available", timezones = "No data available", area = "No data available", maps = "No data available", tld = "No data available" } = restApi;
 
     // CountriesAPI Data:
     const countryDetail = countriesApi?.data?.introduction?.background?.value?.string;
     const pupulation_ranking = countriesApi?.data?.people_and_society?.population?.value?.total?.rank;
-    const independenceDay = countriesApi?.data?.government?.independence?.value?.string;
-    const climate = countriesApi.data?.geography?.climate?.value?.string;
-    const terrain = countriesApi.data?.geography?.terrain?.value?.string;
+    const independenceDay = countriesApi?.data?.government?.independence?.value?.string || "No data found";
+    const climate = countriesApi?.data?.geography?.climate?.value?.string;
+    const terrain = countriesApi?.data?.geography?.terrain?.value?.string;
 
-    const naturalResources = countriesApi.data?.geography?.natural_resources?.value?.map(data => data.string).join(", ") || null;
+    const naturalResources = countriesApi?.data?.geography?.natural_resources?.value?.map(data => data.string).join(", ") || "No data found";
 
-    const religions = countriesApi.data?.people_and_society?.religions?.value;
-
-    // console.log(`RestCountries API for ${name}: `, restApi, `Countries API for ${name}: `, countriesApi, `cca3 data of all countries: `, cca3Data, `GDP data for ${name}: `, gdpWbData[1]);
+    const religions = countriesApi?.data?.people_and_society?.religions?.value;
 
     //gdp data
-    const gdpYear = gdpWbData[1]?.map(data => parseInt(data?.date));
-    // const gdpValue = gdpWbData[1]?.map(data => parseFloat(((data?.value) / 1000000000).toFixed(2)));
+    const gdpYear = gdpWbData?.[1]?.map(data => parseInt(data?.date)) || [];
 
     // console.log(gdpYear, gdpValue);
 
-    const chartData = gdpWbData[1]?.map(data => ({
+    const chartData = gdpWbData?.[1]?.map(data => ({
         year: data?.date,
         gdp: data?.value ? parseFloat(((data?.value) / 1000000000).toFixed(2)) : 0
-    }))
+    })) || [];
 
     //legend formatter
     const stylizeLegend = (value) => {
@@ -74,8 +76,8 @@ const Country = () => {
                 {/* flag */}
                 <div className='relative'>
                     <div className='header rounded-3xl w-full h-120 bg-no-repeat bg-cover bg-center flex justify-center items-center' style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${flag})` }}>
-                        <div className='w-80 sm:w-96 md:w-120 overflow-hidden'>
-                            <img src={flag} alt="" className='rounded-xl' />
+                        <div className='w-80 bg-white/30 p-4 rounded-lg sm:w-96 md:w-120 overflow-hidden'>
+                            <img src={flag} alt="" className='rounded-lg' />
                         </div>
                     </div>
 
@@ -157,9 +159,6 @@ const Country = () => {
                     </div>
                 </div>
 
-                {/* <div className=''>Calling code suffixes: {callingCodeSuffixes.map((code, index) =>(
-                <span key={index} className='list-none'>{code}, </span>
-            ))}</div> */}
 
                 {/* rechart for gdp data */}
                 <div className='overflow-x-hidden'>
@@ -199,7 +198,10 @@ const Country = () => {
                         }
                     </div>
                 </div>
+
+                <button className="btn" onClick={() => navigate(-1)}>Go Back</button>
             </div>
+
 
             <Helmet title={name} />
 

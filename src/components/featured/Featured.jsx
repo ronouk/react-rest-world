@@ -16,7 +16,8 @@ const Featured = () => {
 
     return (
         <div className=''>
-            <h1 className='text-center text-xl font-semibold uppercase mb-12'>Most populous countries</h1>
+            <h1 className='text-center text-xl font-semibold uppercase pb-12'>Most populous countries</h1>
+
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12'>
                 {highToLow.map((country, index) => <CountryCard
                     country={country}
