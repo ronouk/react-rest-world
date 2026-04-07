@@ -20,42 +20,34 @@ const restCountriesLoader = async () => {
     return response.json()
 }
 
-// loader to use
+// loader to use - Simplified for instant navigation
 export const combinedLoader = async ({ params }) => {
     const { id } = params;
 
-    // rest api url
+    // We only fetch the core country data and the CCA3 mapping list.
+    // We removed the slow external API calls from here so the page loads instantly.
     const urlRestCountry = `https://restcountries.com/v3.1/alpha/${id}`;
-
-    //cca3 api url
     const urlCCA3 = "https://gist.githubusercontent.com/bensquire/1ba2037079b69e38bb0d6aea4c4a0229/raw/8609a1a86683bbd6d0e4a7e9456eabf6e7b65b7f/countries.json";
 
-
     try {
-        // STAGE 1: Fetch everything that only needs the 'id' in parallel
         const [resRest, resCca3] = await Promise.all([
-            fetch(urlRestCountry).catch(() => ({ ok: false, status: "Failed" })),
-            fetch(urlCCA3).catch(() => ({ ok: false, status: "Failed" })),
+            fetch(urlRestCountry),
+            fetch(urlCCA3)
         ]);
 
-        // Validate essential data
         if (!resRest.ok) throw new Error(`Country ${id} not found`);
 
-        // Parse JSON in parallel
         const restCountryArray = await resRest.json();
-        const restCountryData = restCountryArray[0];
         const cca3Data = resCca3.ok ? await resCca3.json() : [];
 
-        console.log("ID from Params:", id);
-
         return {
-            restApi: restCountryData,
+            restApi: restCountryArray[0],
             cca3Data,
             id
         };
     } catch (err) {
         console.error("Loader data error: ", err);
-        throw err; // Allow the UI to catch the error if needed
+        throw err;
     }
 };
 
